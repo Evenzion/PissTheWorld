@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Piss the World">
-<title>Piss the World — 24h Karte</title>
+<title>Piss the World</title>
 
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
@@ -29,6 +29,7 @@
     --ink-dim: #a39d8f;
     --accent: #ff5b3a;
     --accent-soft: #ffb89a;
+    --gold: #ffc940;
     --card: #1a2024;
     --border: #2a3036;
     --safe-top: env(safe-area-inset-top, 0px);
@@ -48,24 +49,20 @@
 
   #map { position: absolute; inset: 0; z-index: 1; }
 
-  .header {
+  /* App-Icon unten links als kleines Logo */
+  .app-logo {
     position: absolute;
-    top: 0; left: 0; right: 0;
-    padding: calc(var(--safe-top) + 14px) 18px 14px;
+    bottom: calc(var(--safe-bottom) + 22px);
+    left: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    overflow: hidden;
     z-index: 1000;
-    background: linear-gradient(to bottom, rgba(15,20,22,0.9), rgba(15,20,22,0));
-    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
   }
-  .brand { font-weight: 800; font-size: 22px; letter-spacing: -0.02em; font-style: italic; }
-  .brand .dot { color: var(--accent); font-style: normal; }
-  .subtitle {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--ink-dim);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
+  .app-logo img { width: 100%; height: 100%; display: block; }
 
   .status {
     position: absolute;
@@ -86,7 +83,7 @@
 
   .controls {
     position: absolute;
-    bottom: calc(var(--safe-bottom) + 20px);
+    bottom: calc(var(--safe-bottom) + 22px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -203,7 +200,7 @@
     pointer-events: none;
   }
 
-  /* Schieberegler-Bereich */
+  /* Signatur-Bereich */
   .slider-section {
     margin-top: 18px;
     padding: 16px;
@@ -220,16 +217,12 @@
     margin-bottom: 12px;
     text-align: center;
   }
-  .preview-box {
-    background: #0a0e10;
+  .signature-image {
+    width: 100%;
     border-radius: 10px;
-    height: 110px;
-    margin-bottom: 14px;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--border);
+    display: block;
+    margin-bottom: 8px;
   }
-  .preview-box svg { width: 100%; height: 100%; display: block; }
   .slider-row {
     display: flex;
     align-items: center;
@@ -269,16 +262,66 @@
     height: 22px;
     border-radius: 50%;
     background: var(--ink);
-    border: 2px solid var(--card);
     cursor: pointer;
     border: none;
   }
-  /* Farbverlauf für den Farb-Slider */
   #colorSlider {
     background: linear-gradient(to right, #fff7a8, #f4d03f, #f39c12, #cd853f, #8b5a2b);
   }
   #strengthSlider {
     background: linear-gradient(to right, #2a3036, var(--ink-dim), var(--ink));
+  }
+  #scoreSlider {
+    background: linear-gradient(to right, #444, var(--gold));
+  }
+
+  /* Score-Bewertungs-Dialog */
+  .score-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 20px 0 14px;
+    min-height: 56px;
+  }
+  .star {
+    width: 44px;
+    height: 44px;
+    position: relative;
+  }
+  .star svg { width: 100%; height: 100%; display: block; }
+  .star .star-fill {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    transition: width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .star .star-fill svg { width: 44px; height: 44px; }
+
+  .score-value {
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+  .score-value .score-max {
+    color: var(--ink-dim);
+    font-size: 18px;
+    font-weight: 400;
+    font-style: normal;
+  }
+  .score-pin-title {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
   }
 
   .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
@@ -290,6 +333,20 @@
     filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
   }
   .pin-marker svg { width: 100%; height: 100%; display: block; }
+  .pin-stars {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 20, 22, 0.85);
+    border: 1px solid var(--border);
+    padding: 2px 5px;
+    border-radius: 8px;
+    display: flex;
+    gap: 1px;
+    white-space: nowrap;
+  }
+  .pin-stars svg { width: 8px; height: 8px; display: block; }
 
   .me-marker {
     width: 18px; height: 18px;
@@ -304,7 +361,6 @@
     100% { box-shadow: 0 0 0 16px rgba(74, 158, 255, 0); }
   }
 
-  /* Vollbild-Foto-Viewer mit Infos */
   .lightbox {
     position: absolute;
     inset: 0;
@@ -361,6 +417,13 @@
     color: var(--ink-dim);
     letter-spacing: 0.06em;
   }
+  .lightbox .lb-stars {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 10px;
+  }
+  .lightbox .lb-stars svg { width: 18px; height: 18px; }
   .lightbox .info .lb-delete {
     margin-top: 12px;
     background: transparent;
@@ -395,7 +458,7 @@
 
   .toast {
     position: absolute;
-    top: calc(var(--safe-top) + 70px);
+    top: calc(var(--safe-top) + 16px);
     left: 50%;
     transform: translateX(-50%) translateY(-20px);
     background: var(--card);
@@ -418,10 +481,9 @@
 
 <div id="map"></div>
 
-<div class="header">
-  <div class="brand">Piss the World<span class="dot">.</span></div>
-  <div class="subtitle">deine Welt · 24h sichtbar</div>
-</div>
+<a class="app-logo" href="#" onclick="return false">
+  <img src="icon-152.png" alt="Piss the World">
+</a>
 
 <div class="status">
   <span class="count" id="pinCount">0</span> aktive Pins
@@ -438,6 +500,7 @@
   </button>
 </div>
 
+<!-- Modal: Neuer Pin -->
 <div class="modal-bg" id="modal">
   <div class="modal">
     <h2>Neuer Pin</h2>
@@ -454,20 +517,7 @@
 
     <div class="slider-section">
       <div class="section-label">Deine Signatur</div>
-      <div class="preview-box">
-        <svg id="previewSvg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid meet">
-          <!-- Männchen -->
-          <circle cx="60" cy="28" r="10" fill="#f5f0e6"/>
-          <path d="M53 41 L53 78 L57 78 L57 95 L64 95 L64 78 L67 78 L67 41 Z" fill="#f5f0e6"/>
-          <path d="M67 50 L88 65 L84 70 L65 58 Z" fill="#f5f0e6"/>
-          <path d="M53 50 L38 70 L42 74 L57 60 Z" fill="#f5f0e6"/>
-          <!-- Strahl (wird per JS aktualisiert) -->
-          <path id="previewBeam" d="" fill="none" stroke-linecap="round"/>
-          <!-- Erde -->
-          <circle cx="240" cy="80" r="22" fill="#3a5b8c"/>
-          <path d="M222 75 Q230 68, 240 72 Q250 68, 258 78 Q252 88, 245 86 Q235 94, 225 88 Q218 82, 222 75 Z" fill="#5a8a4a"/>
-        </svg>
-      </div>
+      <img class="signature-image" src="preview-signature.jpg" alt="Vorschau">
       <div class="slider-row">
         <span class="label">Farbe</span>
         <input type="range" id="colorSlider" min="0" max="100" value="30">
@@ -485,12 +535,31 @@
   </div>
 </div>
 
+<!-- Modal: Bewertung -->
+<div class="modal-bg" id="scoreModal">
+  <div class="modal">
+    <h2>Bewerten</h2>
+    <div class="score-pin-title" id="scorePinTitle"></div>
+    <div class="score-value"><span id="scoreValue">5.0</span><span class="score-max"> / 10</span></div>
+    <div class="score-display" id="scoreStars"></div>
+    <div class="slider-row" style="margin-top: 8px;">
+      <span class="label">Score</span>
+      <input type="range" id="scoreSlider" min="0" max="100" value="50">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="scoreSkipBtn">Überspringen</button>
+      <button class="btn btn-primary" id="scoreSaveBtn">Bewertung speichern</button>
+    </div>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox">
   <button class="close" id="lightboxClose">×</button>
   <div class="photo-wrap" id="lbPhotoWrap"></div>
   <div class="info">
     <div class="lb-title" id="lbTitle"></div>
     <div class="lb-meta" id="lbMeta"></div>
+    <div class="lb-stars" id="lbStars"></div>
     <button class="lb-delete" id="lbDelete">Pin löschen</button>
   </div>
 </div>
@@ -498,40 +567,87 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// === Speicher ===
-const STORAGE_KEY = 'pinmap_pins_v3';
+// ===== IndexedDB-Speicher (viel mehr Platz als localStorage) =====
+const DB_NAME = 'pissTheWorld';
+const DB_VERSION = 1;
+const STORE = 'pins';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
-function loadPins() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const all = JSON.parse(raw);
-    const now = Date.now();
-    return all.filter(p => (now - p.createdAt) < TTL_MS);
-  } catch (e) { return []; }
+let db = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(STORE)) {
+        d.createObjectStore(STORE, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+    req.onerror = (e) => reject(e.target.error);
+  });
 }
-function savePins(pins) {
+
+function dbGetAll() {
+  return new Promise((resolve, reject) => {
+    if (!db) return resolve([]);
+    const tx = db.transaction(STORE, 'readonly');
+    const store = tx.objectStore(STORE);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbPut(pin) {
+  return new Promise((resolve, reject) => {
+    if (!db) return reject(new Error('DB nicht bereit'));
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    const req = store.put(pin);
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbDelete(id) {
+  return new Promise((resolve, reject) => {
+    if (!db) return reject(new Error('DB nicht bereit'));
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    const req = store.delete(id);
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function loadPins() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
-    return true;
+    const all = await dbGetAll();
+    const now = Date.now();
+    const fresh = all.filter(p => (now - p.createdAt) < TTL_MS);
+    // Abgelaufene aus DB entfernen
+    for (const p of all) {
+      if ((now - p.createdAt) >= TTL_MS) {
+        await dbDelete(p.id);
+      }
+    }
+    return fresh;
   } catch (e) {
-    toast('Speicher voll. Lösche alte Pins.');
-    return false;
+    console.error('loadPins failed:', e);
+    return [];
   }
 }
 
-// === Farbe-Helfer ===
-// Mischt Farben entlang einer Skala 0..100: hellgelb → dunkelgelb → orange → braun
+// ===== Hilfsfunktionen =====
 function urineColor(value) {
-  // Stops: [Position, R, G, B]
   const stops = [
-    [0,   255, 247, 168], // #fff7a8 hellgelb
-    [33,  244, 208, 63],  // #f4d03f dunkelgelb
-    [66,  243, 156, 18],  // #f39c12 orange
-    [100, 139, 90, 43]    // #8b5a2b braun
+    [0,   255, 247, 168],
+    [33,  244, 208, 63],
+    [66,  243, 156, 18],
+    [100, 139, 90, 43]
   ];
-  // Finde die zwei Stops, zwischen denen der Wert liegt
   for (let i = 0; i < stops.length - 1; i++) {
     if (value >= stops[i][0] && value <= stops[i+1][0]) {
       const t = (value - stops[i][0]) / (stops[i+1][0] - stops[i][0]);
@@ -544,12 +660,6 @@ function urineColor(value) {
   return '#f4d03f';
 }
 
-// Strahl-Stärke 0..100 → Strichbreite in px (für Preview und Pin)
-function beamWidth(value) {
-  return 2 + (value / 100) * 10; // 2px bis 12px
-}
-
-// === Foto verkleinern ===
 function compressImage(file, maxSize = 1280, quality = 0.82) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -577,7 +687,52 @@ function compressImage(file, maxSize = 1280, quality = 0.82) {
   });
 }
 
-// === Karte ===
+function formatTime(ts) {
+  return new Date(ts).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+function timeLeft(createdAt) {
+  const ms = TTL_MS - (Date.now() - createdAt);
+  if (ms <= 0) return 'abgelaufen';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return `noch ${h}h ${m}m`;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Score 0..10 → Stern-Füllgrad (0..5)
+function scoreToStars(score) {
+  return (score / 10) * 5;
+}
+
+// SVG-Pfad eines Sterns
+const STAR_PATH = 'M12 2 L14.85 8.7 L22 9.27 L16.5 14 L18.18 21 L12 17.27 L5.82 21 L7.5 14 L2 9.27 L9.15 8.7 Z';
+
+function makeStarsHtml(starValue, size = 8, color = '#ffc940', dimColor = '#3a3a3a') {
+  // starValue: 0..5
+  let html = '';
+  for (let i = 0; i < 5; i++) {
+    const fillFraction = Math.max(0, Math.min(1, starValue - i));
+    if (fillFraction === 0) {
+      html += `<svg viewBox="0 0 24 24" width="${size}" height="${size}"><path d="${STAR_PATH}" fill="${dimColor}"/></svg>`;
+    } else if (fillFraction === 1) {
+      html += `<svg viewBox="0 0 24 24" width="${size}" height="${size}"><path d="${STAR_PATH}" fill="${color}"/></svg>`;
+    } else {
+      const id = 'g' + i + Math.random().toString(36).slice(2,6);
+      html += `<svg viewBox="0 0 24 24" width="${size}" height="${size}">
+        <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="${fillFraction * 100}%" stop-color="${color}"/>
+          <stop offset="${fillFraction * 100}%" stop-color="${dimColor}"/>
+        </linearGradient></defs>
+        <path d="${STAR_PATH}" fill="url(#${id})"/>
+      </svg>`;
+    }
+  }
+  return html;
+}
+
+// ===== Karte =====
 const map = L.map('map', { zoomControl: false }).setView([20, 10], 2);
 L.control.zoom({ position: 'topright' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -586,18 +741,19 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
 }).addTo(map);
 
 const pinMarkers = new Map();
-let pins = loadPins();
+let pins = [];
 let myMarker = null;
 let myPosition = null;
 let pendingPhoto = null;
 
-// === Pin-Symbol mit Strahl & Farbe ===
 function makePinIcon(pin) {
   const color = pin.color || '#f4d03f';
-  const width = pin.strength != null ? beamWidth(pin.strength) : 6;
-  // SVG-Pin mit Tropfen-Form, Farbe innen entspricht Urinfarbe
-  // Tropfen-Größe innen skaliert mit Stärke (3-9 px)
   const innerSize = 3 + (pin.strength != null ? (pin.strength / 100) * 6 : 3);
+  let starsHtml = '';
+  if (pin.score != null) {
+    const stars = scoreToStars(pin.score);
+    starsHtml = `<div class="pin-stars">${makeStarsHtml(stars, 8)}</div>`;
+  }
   const html = `
     <div class="pin-marker">
       <svg viewBox="0 0 30 36">
@@ -605,6 +761,7 @@ function makePinIcon(pin) {
               fill="${color}" stroke="#0f1416" stroke-width="2"/>
         <ellipse cx="15" cy="14" rx="${innerSize}" ry="${innerSize * 1.3}" fill="#0f1416" opacity="0.6"/>
       </svg>
+      ${starsHtml}
     </div>
   `;
   return L.divIcon({
@@ -624,45 +781,39 @@ function makeMeIcon() {
   });
 }
 
-function formatTime(ts) {
-  return new Date(ts).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-}
-function timeLeft(createdAt) {
-  const ms = TTL_MS - (Date.now() - createdAt);
-  if (ms <= 0) return 'abgelaufen';
-  const h = Math.floor(ms / 3600000);
-  const m = Math.floor((ms % 3600000) / 60000);
-  return `noch ${h}h ${m}m`;
-}
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-// Beim Antippen direkt Vollbild öffnen
 function renderPin(pin) {
   const m = L.marker([pin.lat, pin.lng], { icon: makePinIcon(pin) }).addTo(map);
   m.on('click', () => openLightbox(pin.id));
   pinMarkers.set(pin.id, m);
 }
 
-function refreshAll() {
-  const now = Date.now();
-  const fresh = pins.filter(p => (now - p.createdAt) < TTL_MS);
+async function refreshAll() {
+  pins = await loadPins();
+  // Entfernte aus Karte
   for (const [id, marker] of pinMarkers) {
-    if (!fresh.find(p => p.id === id)) {
+    if (!pins.find(p => p.id === id)) {
       map.removeLayer(marker);
       pinMarkers.delete(id);
     }
   }
-  for (const p of fresh) {
+  // Neue rendern
+  for (const p of pins) {
     if (!pinMarkers.has(p.id)) renderPin(p);
   }
-  pins = fresh;
-  savePins(pins);
   document.getElementById('pinCount').textContent = pins.length;
 }
 
-// === Lightbox: Foto direkt im Vollbild + Infos ===
+// Pin-Marker neu zeichnen (nach Score-Änderung)
+function rerenderPin(pin) {
+  const old = pinMarkers.get(pin.id);
+  if (old) {
+    map.removeLayer(old);
+    pinMarkers.delete(pin.id);
+  }
+  renderPin(pin);
+}
+
+// ===== Lightbox =====
 let currentLightboxId = null;
 
 window.openLightbox = function(id) {
@@ -677,6 +828,14 @@ window.openLightbox = function(id) {
   }
   document.getElementById('lbTitle').textContent = pin.title;
   document.getElementById('lbMeta').textContent = `${formatTime(pin.createdAt)} · ${timeLeft(pin.createdAt)}`;
+  // Sterne im Lightbox
+  const starsEl = document.getElementById('lbStars');
+  if (pin.score != null) {
+    starsEl.innerHTML = makeStarsHtml(scoreToStars(pin.score), 18) + ` <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gold); margin-left: 6px; align-self: center;">${pin.score.toFixed(1)}</span>`;
+    starsEl.style.alignItems = 'center';
+  } else {
+    starsEl.innerHTML = '';
+  }
   document.getElementById('lightbox').classList.add('show');
 };
 
@@ -685,18 +844,21 @@ document.getElementById('lightboxClose').addEventListener('click', () => {
   currentLightboxId = null;
 });
 
-document.getElementById('lbDelete').addEventListener('click', () => {
+document.getElementById('lbDelete').addEventListener('click', async () => {
   if (!currentLightboxId) return;
   if (!confirm('Diesen Pin wirklich löschen?')) return;
-  pins = pins.filter(p => p.id !== currentLightboxId);
-  savePins(pins);
-  refreshAll();
-  document.getElementById('lightbox').classList.remove('show');
-  currentLightboxId = null;
-  toast('Pin gelöscht');
+  try {
+    await dbDelete(currentLightboxId);
+    await refreshAll();
+    document.getElementById('lightbox').classList.remove('show');
+    currentLightboxId = null;
+    toast('Pin gelöscht');
+  } catch (e) {
+    toast('Fehler beim Löschen');
+  }
 });
 
-// === GPS ===
+// ===== GPS =====
 function locate(showToast = true) {
   if (!navigator.geolocation) {
     toast('GPS nicht verfügbar');
@@ -718,7 +880,7 @@ function locate(showToast = true) {
   });
 }
 
-// === Modal & Foto ===
+// ===== Modal: Neuer Pin =====
 const modal = document.getElementById('modal');
 const modalCoords = document.getElementById('modalCoords');
 const titleInput = document.getElementById('titleInput');
@@ -727,23 +889,6 @@ const photoLabel = document.getElementById('photoLabel');
 const fileInput = document.getElementById('fileInput');
 const colorSlider = document.getElementById('colorSlider');
 const strengthSlider = document.getElementById('strengthSlider');
-const previewBeam = document.getElementById('previewBeam');
-
-// Live-Vorschau aktualisieren beim Schieben
-function updatePreview() {
-  const c = +colorSlider.value;
-  const s = +strengthSlider.value;
-  const color = urineColor(c);
-  const w = beamWidth(s);
-  // Strahl als gestrichelte Bogen-Linie vom Männchen zur Erde
-  // Start bei (88, 65), Bogen über (160, 30) zum Auftreffpunkt (240, 65)
-  previewBeam.setAttribute('d', 'M 88 65 Q 160 25 240 65');
-  previewBeam.setAttribute('stroke', color);
-  previewBeam.setAttribute('stroke-width', w);
-  previewBeam.setAttribute('stroke-dasharray', `${Math.max(4, w*1.2)} ${Math.max(6, w*1.5)}`);
-}
-colorSlider.addEventListener('input', updatePreview);
-strengthSlider.addEventListener('input', updatePreview);
 
 function resetModal() {
   titleInput.value = '';
@@ -754,7 +899,6 @@ function resetModal() {
   fileInput.value = '';
   colorSlider.value = 30;
   strengthSlider.value = 60;
-  updatePreview();
 }
 
 document.getElementById('addBtn').addEventListener('click', async () => {
@@ -791,7 +935,7 @@ document.getElementById('cancelBtn').addEventListener('click', () => {
   modal.classList.remove('show');
 });
 
-document.getElementById('saveBtn').addEventListener('click', () => {
+document.getElementById('saveBtn').addEventListener('click', async () => {
   const title = titleInput.value.trim();
   if (!title) { toast('Bitte einen Titel eingeben'); return; }
   if (!myPosition) { toast('Kein Standort verfügbar'); return; }
@@ -805,16 +949,20 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     createdAt: Date.now(),
     photo: pendingPhoto || null,
     color: urineColor(colorVal),
-    strength: strengthVal
+    strength: strengthVal,
+    score: null
   };
-  pins.push(pin);
-  if (!savePins(pins)) {
-    pins.pop();
-    return;
+  try {
+    await dbPut(pin);
+    await refreshAll();
+    modal.classList.remove('show');
+    toast('Pin gespeichert');
+    // Direkt Bewertungs-Dialog öffnen
+    openScoreModal(pin);
+  } catch (e) {
+    console.error('Save failed:', e);
+    toast('Fehler beim Speichern');
   }
-  refreshAll();
-  modal.classList.remove('show');
-  toast(pendingPhoto ? 'Pin mit Foto gespeichert' : 'Pin gespeichert · 24h sichtbar');
 });
 
 titleInput.addEventListener('keydown', (e) => {
@@ -823,7 +971,75 @@ titleInput.addEventListener('keydown', (e) => {
 
 document.getElementById('locateBtn').addEventListener('click', () => locate(true));
 
-// === Toast ===
+// ===== Modal: Bewertung =====
+const scoreModal = document.getElementById('scoreModal');
+const scoreSlider = document.getElementById('scoreSlider');
+const scoreValue = document.getElementById('scoreValue');
+const scoreStars = document.getElementById('scoreStars');
+const scorePinTitle = document.getElementById('scorePinTitle');
+let scoringPin = null;
+
+// Initial die 5 Stern-Container bauen
+function buildStarContainers() {
+  let html = '';
+  for (let i = 0; i < 5; i++) {
+    html += `
+      <div class="star">
+        <svg viewBox="0 0 24 24"><path d="${STAR_PATH}" fill="#3a3a3a"/></svg>
+        <div class="star-fill" style="width: 0;">
+          <svg viewBox="0 0 24 24"><path d="${STAR_PATH}" fill="${'#ffc940'}"/></svg>
+        </div>
+      </div>
+    `;
+  }
+  scoreStars.innerHTML = html;
+}
+buildStarContainers();
+
+function updateScoreDisplay() {
+  const sliderVal = +scoreSlider.value; // 0..100
+  const score = sliderVal / 10; // 0..10 in 0.1 Schritten
+  scoreValue.textContent = score.toFixed(1);
+  // Sterne füllen (0..5)
+  const starsValue = (score / 10) * 5;
+  const starEls = scoreStars.querySelectorAll('.star');
+  starEls.forEach((el, i) => {
+    const fill = Math.max(0, Math.min(1, starsValue - i));
+    el.querySelector('.star-fill').style.width = (fill * 100) + '%';
+  });
+}
+
+scoreSlider.addEventListener('input', updateScoreDisplay);
+
+function openScoreModal(pin) {
+  scoringPin = pin;
+  scorePinTitle.textContent = pin.title;
+  scoreSlider.value = 50;
+  updateScoreDisplay();
+  scoreModal.classList.add('show');
+}
+
+document.getElementById('scoreSkipBtn').addEventListener('click', () => {
+  scoreModal.classList.remove('show');
+  scoringPin = null;
+});
+
+document.getElementById('scoreSaveBtn').addEventListener('click', async () => {
+  if (!scoringPin) return;
+  const score = +scoreSlider.value / 10;
+  scoringPin.score = score;
+  try {
+    await dbPut(scoringPin);
+    rerenderPin(scoringPin);
+    scoreModal.classList.remove('show');
+    scoringPin = null;
+    toast(`Bewertung ${score.toFixed(1)} gespeichert`);
+  } catch (e) {
+    toast('Fehler beim Speichern');
+  }
+});
+
+// ===== Toast =====
 let toastTimer;
 function toast(msg) {
   const el = document.getElementById('toast');
@@ -833,11 +1049,18 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
-// === Init ===
-updatePreview();
-refreshAll();
-locate(false).catch(() => {});
-setInterval(refreshAll, 60 * 1000);
+// ===== Init =====
+(async function init() {
+  try {
+    await openDB();
+    await refreshAll();
+  } catch (e) {
+    console.error('DB init failed:', e);
+    toast('Speicher nicht verfügbar');
+  }
+  locate(false).catch(() => {});
+  setInterval(refreshAll, 60 * 1000);
+})();
 </script>
 </body>
 </html>
