@@ -63,6 +63,31 @@
   }
   .app-logo img { width: 100%; height: 100%; display: block; }
 
+  /* Hilfe-Button */
+  .help-btn {
+    position: absolute;
+    top: calc(var(--safe-top) + 16px);
+    left: 16px;
+    z-index: 1001;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    font-style: italic;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .help-btn:active { transform: scale(0.92); }
+
   .status {
     position: absolute;
     top: calc(var(--safe-top) + 16px);
@@ -101,16 +126,17 @@
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    transition: transform 0.15s ease;
+    transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
     -webkit-tap-highlight-color: transparent;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .btn:active { transform: scale(0.96); }
+  .btn:active { transform: scale(0.94); }
   .btn-primary { background: var(--accent); border-color: var(--accent); color: #1a0d08; }
   .btn svg { width: 18px; height: 18px; }
 
+  /* Modale */
   .modal-bg {
     position: absolute;
     inset: 0;
@@ -123,7 +149,9 @@
     justify-content: center;
     padding: 20px;
   }
-  .modal-bg.show { display: flex; }
+  .modal-bg.show { display: flex; animation: fadeIn 0.2s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
   .modal {
     background: var(--card);
     border: 1px solid var(--border);
@@ -134,6 +162,11 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.6);
     max-height: 90vh;
     overflow-y: auto;
+    animation: modalIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes modalIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
   }
   .modal h2 { font-size: 24px; font-weight: 800; font-style: italic; letter-spacing: -0.02em; margin-bottom: 6px; }
   .modal .hint {
@@ -216,7 +249,6 @@
     text-align: center;
   }
 
-  /* Bild + interaktiver Strahl darüber */
   .signature-stage {
     position: relative;
     width: 100%;
@@ -225,11 +257,7 @@
     margin-bottom: 8px;
     background: #0f1416;
   }
-  .signature-stage img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
+  .signature-stage img { display: block; width: 100%; height: auto; }
   .signature-stage svg.overlay {
     position: absolute;
     inset: 0;
@@ -251,7 +279,9 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     min-width: 50px;
+    transition: color 0.15s ease;
   }
+  .slider-row.active .label { color: var(--ink); }
   .slider-row input[type="range"] {
     flex: 1;
     -webkit-appearance: none;
@@ -271,6 +301,10 @@
     border: 2px solid var(--card);
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    transition: transform 0.12s ease;
+  }
+  .slider-row input[type="range"]:active::-webkit-slider-thumb {
+    transform: scale(1.2);
   }
   .slider-row input[type="range"]::-moz-range-thumb {
     width: 22px;
@@ -290,7 +324,6 @@
     background: linear-gradient(to right, #444, var(--gold));
   }
 
-  /* Score-Bewertung */
   .score-display {
     display: flex;
     align-items: center;
@@ -299,11 +332,7 @@
     margin: 20px 0 14px;
     min-height: 56px;
   }
-  .star {
-    width: 44px;
-    height: 44px;
-    position: relative;
-  }
+  .star { width: 44px; height: 44px; position: relative; }
   .star svg { width: 100%; height: 100%; display: block; }
   .star .star-fill {
     position: absolute;
@@ -312,6 +341,12 @@
     transition: width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .star .star-fill svg { width: 44px; height: 44px; }
+  .star.pop { animation: starPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes starPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
 
   .score-value {
     text-align: center;
@@ -348,6 +383,12 @@
     filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
   }
   .pin-marker svg { width: 100%; height: 100%; display: block; }
+  .pin-marker.fresh { animation: pinDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes pinDrop {
+    0% { transform: translateY(-30px) scale(0.5); opacity: 0; }
+    60% { transform: translateY(4px) scale(1.1); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
   .pin-stars {
     position: absolute;
     bottom: -16px;
@@ -387,7 +428,7 @@
     justify-content: center;
     padding: calc(var(--safe-top) + 60px) 20px calc(var(--safe-bottom) + 80px);
   }
-  .lightbox.show { display: flex; }
+  .lightbox.show { display: flex; animation: fadeIn 0.2s; }
   .lightbox .photo-wrap {
     flex: 1;
     display: flex;
@@ -395,81 +436,40 @@
     justify-content: center;
     overflow: hidden;
   }
-  .lightbox img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    border-radius: 12px;
-  }
+  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; }
   .lightbox .no-photo {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 40px 24px;
-    text-align: center;
-    color: var(--ink-dim);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 40px 24px; text-align: center; color: var(--ink-dim);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.08em; text-transform: uppercase;
   }
   .lightbox .info {
-    margin-top: 20px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px 20px;
-    text-align: center;
+    margin-top: 20px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px 20px; text-align: center;
   }
-  .lightbox .info .lb-title {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
+  .lightbox .info .lb-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
   .lightbox .info .lb-meta {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--ink-dim);
-    letter-spacing: 0.06em;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-dim); letter-spacing: 0.06em;
   }
   .lightbox .lb-stars {
-    display: flex;
-    justify-content: center;
-    gap: 3px;
-    margin-top: 10px;
-    align-items: center;
+    display: flex; justify-content: center; gap: 3px;
+    margin-top: 10px; align-items: center;
   }
   .lightbox .lb-stars svg { width: 18px; height: 18px; }
   .lightbox .info .lb-delete {
-    margin-top: 12px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--ink-dim);
-    padding: 8px 16px;
-    border-radius: 999px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    cursor: pointer;
+    margin-top: 12px; background: transparent; border: 1px solid var(--border);
+    color: var(--ink-dim); padding: 8px 16px; border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;
   }
   .lightbox .info .lb-delete:hover { color: var(--accent); border-color: var(--accent); }
   .lightbox .close {
-    position: absolute;
-    top: calc(var(--safe-top) + 16px);
-    right: 16px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--ink);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 22px;
-    line-height: 1;
+    position: absolute; top: calc(var(--safe-top) + 16px); right: 16px;
+    background: var(--card); border: 1px solid var(--border); color: var(--ink);
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 22px; line-height: 1;
   }
 
   .toast {
@@ -491,11 +491,152 @@
     white-space: nowrap;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.kick { animation: toastKick 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes toastKick {
+    0% { transform: translateX(-50%) translateY(-20px) scale(0.5); opacity: 0; }
+    50% { transform: translateX(-50%) translateY(0) scale(1.08); }
+    100% { transform: translateX(-50%) translateY(0) scale(1); }
+  }
+
+  /* Map-Glow nach Pin-Speichern */
+  .map-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1500;
+    box-shadow: inset 0 0 80px 0 var(--accent);
+    opacity: 0;
+    transition: opacity 0.4s ease-out;
+  }
+  .map-glow.show { opacity: 0.6; transition: opacity 0.1s ease-in; }
+
+  /* ===== Onboarding-Tour ===== */
+  .tour-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4000;
+    pointer-events: none;
+    display: none;
+  }
+  .tour-overlay.show { display: block; }
+  .tour-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    pointer-events: auto;
+    transition: background 0.3s ease;
+  }
+  /* Spotlight: ein Loch in der Maske via clip-path wäre ideal,
+     wir nutzen aber einfacher: ein hellerer Ring um das Element */
+  .tour-spotlight {
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.78);
+    transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  .tour-spotlight::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    animation: spotPulse 1.6s infinite ease-out;
+  }
+  @keyframes spotPulse {
+    0% { transform: scale(0.95); opacity: 1; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+  .tour-card {
+    position: absolute;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    width: calc(100% - 40px);
+    max-width: 320px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    pointer-events: auto;
+    transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .tour-card .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .tour-card .step-title {
+    font-size: 20px;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .tour-card .step-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-dim);
+    margin-bottom: 14px;
+  }
+  .tour-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .tour-skip {
+    background: transparent;
+    border: none;
+    color: var(--ink-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 4px;
+    cursor: pointer;
+    margin-right: auto;
+  }
+  .tour-back, .tour-next {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tour-next {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a0d08;
+  }
+  .tour-back:active, .tour-next:active { transform: scale(0.94); }
+  /* Pfeil vom Card zum Spotlight */
+  .tour-arrow {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    pointer-events: none;
+    transition: top 0.4s, left 0.4s;
+  }
+  .tour-arrow svg { width: 100%; height: 100%; }
 </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<button class="help-btn" id="helpBtn" aria-label="Hilfe">?</button>
 
 <a class="app-logo" href="#" onclick="return false">
   <img src="icon-152.png" alt="Piss the World">
@@ -515,6 +656,8 @@
     Pin setzen
   </button>
 </div>
+
+<div class="map-glow" id="mapGlow"></div>
 
 <!-- Modal: Neuer Pin -->
 <div class="modal-bg" id="modal">
@@ -540,11 +683,11 @@
           <g id="previewSplash"></g>
         </svg>
       </div>
-      <div class="slider-row">
+      <div class="slider-row" id="colorRow">
         <span class="label">Farbe</span>
         <input type="range" id="colorSlider" min="0" max="100" value="30">
       </div>
-      <div class="slider-row">
+      <div class="slider-row" id="strengthRow">
         <span class="label">Stärke</span>
         <input type="range" id="strengthSlider" min="0" max="100" value="60">
       </div>
@@ -586,15 +729,47 @@
   </div>
 </div>
 
+<!-- Onboarding-Tour -->
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-mask" id="tourMask"></div>
+  <div class="tour-spotlight" id="tourSpot"></div>
+  <div class="tour-card" id="tourCard">
+    <div class="step-num" id="tourStepNum">Schritt 1 von 4</div>
+    <div class="step-title" id="tourTitle">Willkommen</div>
+    <div class="step-text" id="tourText">Text</div>
+    <div class="tour-actions">
+      <button class="tour-skip" id="tourSkip">Überspringen</button>
+      <button class="tour-back" id="tourBack">Zurück</button>
+      <button class="tour-next" id="tourNext">Weiter</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== Feedback-Helfer (visuelle "Haptik") =====
+function fb(type) {
+  // type: 'tap' (dezent), 'success' (kräftig), 'pop' (für Sterne)
+  // Vibration nur als Bonus-Versuch (klappt auf Android, wird auf iOS ignoriert)
+  if (navigator.vibrate) {
+    if (type === 'tap') navigator.vibrate(10);
+    else if (type === 'success') navigator.vibrate([15, 30, 15]);
+    else if (type === 'pop') navigator.vibrate(8);
+  }
+}
+
+function flashMapGlow() {
+  const g = document.getElementById('mapGlow');
+  g.classList.add('show');
+  setTimeout(() => g.classList.remove('show'), 500);
+}
+
 // ===== IndexedDB =====
 const DB_NAME = 'pissTheWorld';
 const DB_VERSION = 1;
 const STORE = 'pins';
 const TTL_MS = 24 * 60 * 60 * 1000;
-
 let db = null;
 
 function openDB() {
@@ -602,45 +777,36 @@ function openDB() {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = (e) => {
       const d = e.target.result;
-      if (!d.objectStoreNames.contains(STORE)) {
-        d.createObjectStore(STORE, { keyPath: 'id' });
-      }
+      if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath: 'id' });
     };
     req.onsuccess = (e) => { db = e.target.result; resolve(db); };
     req.onerror = (e) => reject(e.target.error);
   });
 }
-
 function dbGetAll() {
   return new Promise((resolve, reject) => {
     if (!db) return resolve([]);
-    const tx = db.transaction(STORE, 'readonly');
-    const req = tx.objectStore(STORE).getAll();
+    const req = db.transaction(STORE, 'readonly').objectStore(STORE).getAll();
     req.onsuccess = () => resolve(req.result || []);
     req.onerror = () => reject(req.error);
   });
 }
-
 function dbPut(pin) {
   return new Promise((resolve, reject) => {
     if (!db) return reject(new Error('DB nicht bereit'));
-    const tx = db.transaction(STORE, 'readwrite');
-    const req = tx.objectStore(STORE).put(pin);
+    const req = db.transaction(STORE, 'readwrite').objectStore(STORE).put(pin);
     req.onsuccess = () => resolve(true);
     req.onerror = () => reject(req.error);
   });
 }
-
 function dbDelete(id) {
   return new Promise((resolve, reject) => {
     if (!db) return reject(new Error('DB nicht bereit'));
-    const tx = db.transaction(STORE, 'readwrite');
-    const req = tx.objectStore(STORE).delete(id);
+    const req = db.transaction(STORE, 'readwrite').objectStore(STORE).delete(id);
     req.onsuccess = () => resolve(true);
     req.onerror = () => reject(req.error);
   });
 }
-
 async function loadPins() {
   try {
     const all = await dbGetAll();
@@ -650,20 +816,12 @@ async function loadPins() {
       if ((now - p.createdAt) >= TTL_MS) await dbDelete(p.id);
     }
     return fresh;
-  } catch (e) {
-    console.error('loadPins failed:', e);
-    return [];
-  }
+  } catch (e) { return []; }
 }
 
 // ===== Hilfsfunktionen =====
 function urineColor(value) {
-  const stops = [
-    [0,   255, 247, 168],
-    [33,  244, 208, 63],
-    [66,  243, 156, 18],
-    [100, 139, 90, 43]
-  ];
+  const stops = [[0,255,247,168],[33,244,208,63],[66,243,156,18],[100,139,90,43]];
   for (let i = 0; i < stops.length - 1; i++) {
     if (value >= stops[i][0] && value <= stops[i+1][0]) {
       const t = (value - stops[i][0]) / (stops[i+1][0] - stops[i][0]);
@@ -683,22 +841,17 @@ function compressImage(file, maxSize = 1280, quality = 0.82) {
       const img = new Image();
       img.onload = () => {
         let { width, height } = img;
-        if (width > height) {
-          if (width > maxSize) { height = height * (maxSize / width); width = maxSize; }
-        } else {
-          if (height > maxSize) { width = width * (maxSize / height); height = maxSize; }
-        }
+        if (width > height) { if (width > maxSize) { height = height * (maxSize / width); width = maxSize; } }
+        else { if (height > maxSize) { width = width * (maxSize / height); height = maxSize; } }
         const canvas = document.createElement('canvas');
-        canvas.width = Math.round(width);
-        canvas.height = Math.round(height);
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.width = Math.round(width); canvas.height = Math.round(height);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
-      img.onerror = () => reject(new Error('Bild konnte nicht geladen werden'));
+      img.onerror = () => reject(new Error('Bild fehler'));
       img.src = e.target.result;
     };
-    reader.onerror = () => reject(new Error('Datei konnte nicht gelesen werden'));
+    reader.onerror = () => reject(new Error('Datei fehler'));
     reader.readAsDataURL(file);
   });
 }
@@ -727,13 +880,7 @@ function makeStarsHtml(starValue, size = 8, color = '#ffc940', dimColor = '#3a3a
       html += `<svg viewBox="0 0 24 24" width="${size}" height="${size}"><path d="${STAR_PATH}" fill="${color}"/></svg>`;
     } else {
       const id = 'g' + i + Math.random().toString(36).slice(2,6);
-      html += `<svg viewBox="0 0 24 24" width="${size}" height="${size}">
-        <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="${fillFraction * 100}%" stop-color="${color}"/>
-          <stop offset="${fillFraction * 100}%" stop-color="${dimColor}"/>
-        </linearGradient></defs>
-        <path d="${STAR_PATH}" fill="url(#${id})"/>
-      </svg>`;
+      html += `<svg viewBox="0 0 24 24" width="${size}" height="${size}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="${fillFraction * 100}%" stop-color="${color}"/><stop offset="${fillFraction * 100}%" stop-color="${dimColor}"/></linearGradient></defs><path d="${STAR_PATH}" fill="url(#${id})"/></svg>`;
     }
   }
   return html;
@@ -743,8 +890,7 @@ function makeStarsHtml(starValue, size = 8, color = '#ffc940', dimColor = '#3a3a
 const map = L.map('map', { zoomControl: false }).setView([20, 10], 2);
 L.control.zoom({ position: 'topright' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap &copy; CARTO',
-  maxZoom: 19
+  attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
 }).addTo(map);
 
 const pinMarkers = new Map();
@@ -753,18 +899,18 @@ let myMarker = null;
 let myPosition = null;
 let pendingPhoto = null;
 
-function makePinIcon(pin) {
+function makePinIcon(pin, fresh = false) {
   const color = pin.color || '#f4d03f';
   const innerSize = 3 + (pin.strength != null ? (pin.strength / 100) * 6 : 3);
   let starsHtml = '';
   if (pin.score != null) {
     starsHtml = `<div class="pin-stars">${makeStarsHtml(scoreToStars(pin.score), 8)}</div>`;
   }
+  const freshClass = fresh ? ' fresh' : '';
   const html = `
-    <div class="pin-marker">
+    <div class="pin-marker${freshClass}">
       <svg viewBox="0 0 30 36">
-        <path d="M15 2 C7 2 2 8 2 15 C2 24 15 34 15 34 C15 34 28 24 28 15 C28 8 23 2 15 2 Z"
-              fill="${color}" stroke="#0f1416" stroke-width="2"/>
+        <path d="M15 2 C7 2 2 8 2 15 C2 24 15 34 15 34 C15 34 28 24 28 15 C28 8 23 2 15 2 Z" fill="${color}" stroke="#0f1416" stroke-width="2"/>
         <ellipse cx="15" cy="14" rx="${innerSize}" ry="${innerSize * 1.3}" fill="#0f1416" opacity="0.6"/>
       </svg>
       ${starsHtml}
@@ -774,26 +920,19 @@ function makePinIcon(pin) {
 }
 
 function makeMeIcon() {
-  return L.divIcon({
-    className: '',
-    html: '<div class="me-marker"></div>',
-    iconSize: [18, 18], iconAnchor: [9, 9]
-  });
+  return L.divIcon({ className: '', html: '<div class="me-marker"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
 }
 
-function renderPin(pin) {
-  const m = L.marker([pin.lat, pin.lng], { icon: makePinIcon(pin) }).addTo(map);
-  m.on('click', () => openLightbox(pin.id));
+function renderPin(pin, fresh = false) {
+  const m = L.marker([pin.lat, pin.lng], { icon: makePinIcon(pin, fresh) }).addTo(map);
+  m.on('click', () => { fb('tap'); openLightbox(pin.id); });
   pinMarkers.set(pin.id, m);
 }
 
 async function refreshAll() {
   pins = await loadPins();
   for (const [id, marker] of pinMarkers) {
-    if (!pins.find(p => p.id === id)) {
-      map.removeLayer(marker);
-      pinMarkers.delete(id);
-    }
+    if (!pins.find(p => p.id === id)) { map.removeLayer(marker); pinMarkers.delete(id); }
   }
   for (const p of pins) {
     if (!pinMarkers.has(p.id)) renderPin(p);
@@ -809,33 +948,26 @@ function rerenderPin(pin) {
 
 // ===== Lightbox =====
 let currentLightboxId = null;
-
 window.openLightbox = function(id) {
   const pin = pins.find(p => p.id === id);
   if (!pin) return;
   currentLightboxId = id;
   const wrap = document.getElementById('lbPhotoWrap');
-  if (pin.photo) {
-    wrap.innerHTML = `<img src="${pin.photo}" alt="">`;
-  } else {
-    wrap.innerHTML = '<div class="no-photo">Kein Foto vorhanden</div>';
-  }
+  if (pin.photo) wrap.innerHTML = `<img src="${pin.photo}" alt="">`;
+  else wrap.innerHTML = '<div class="no-photo">Kein Foto vorhanden</div>';
   document.getElementById('lbTitle').textContent = pin.title;
   document.getElementById('lbMeta').textContent = `${formatTime(pin.createdAt)} · ${timeLeft(pin.createdAt)}`;
   const starsEl = document.getElementById('lbStars');
   if (pin.score != null) {
     starsEl.innerHTML = makeStarsHtml(scoreToStars(pin.score), 18) + ` <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gold); margin-left: 6px;">${pin.score.toFixed(1)}</span>`;
-  } else {
-    starsEl.innerHTML = '';
-  }
+  } else { starsEl.innerHTML = ''; }
   document.getElementById('lightbox').classList.add('show');
 };
-
 document.getElementById('lightboxClose').addEventListener('click', () => {
+  fb('tap');
   document.getElementById('lightbox').classList.remove('show');
   currentLightboxId = null;
 });
-
 document.getElementById('lbDelete').addEventListener('click', async () => {
   if (!currentLightboxId) return;
   if (!confirm('Diesen Pin wirklich löschen?')) return;
@@ -844,7 +976,8 @@ document.getElementById('lbDelete').addEventListener('click', async () => {
     await refreshAll();
     document.getElementById('lightbox').classList.remove('show');
     currentLightboxId = null;
-    toast('Pin gelöscht');
+    fb('success');
+    toast('Pin gelöscht', true);
   } catch (e) { toast('Fehler beim Löschen'); }
 });
 
@@ -879,34 +1012,25 @@ const strengthSlider = document.getElementById('strengthSlider');
 const previewBeam = document.getElementById('previewBeam');
 const previewSplash = document.getElementById('previewSplash');
 
-// Strahl-Koordinaten im 600x423-Bild
-// Start: Höhe Bauch/Hand des Männchens (rechts vom Körper)
-// Ziel: Mitte des Pin-Auftreffpunkts auf der Erde
 const BEAM_START = { x: 195, y: 235 };
 const BEAM_END = { x: 470, y: 240 };
-const BEAM_PEAK_Y = 145; // höchster Punkt des Bogens
+const BEAM_PEAK_Y = 145;
 
 function updatePreview() {
   const c = +colorSlider.value;
   const s = +strengthSlider.value;
   const color = urineColor(c);
-  // Strichbreite: 3..14 px im SVG-Koordinatensystem
   const w = 3 + (s / 100) * 11;
-  // Bogen-Pfad: vom Start über Peak zum End
   const peakX = (BEAM_START.x + BEAM_END.x) / 2;
   const path = `M ${BEAM_START.x} ${BEAM_START.y} Q ${peakX} ${BEAM_PEAK_Y - (s/100)*30} ${BEAM_END.x} ${BEAM_END.y}`;
   previewBeam.setAttribute('d', path);
   previewBeam.setAttribute('stroke', color);
   previewBeam.setAttribute('stroke-width', w);
-  // Strichelung skaliert mit Stärke
   const dash = Math.max(8, w * 1.8);
   const gap = Math.max(10, w * 1.6);
   previewBeam.setAttribute('stroke-dasharray', `${dash} ${gap}`);
-  // Spritzer: Größe abhängig von Stärke
   const splashSize = 6 + (s / 100) * 22;
-  const cx = BEAM_END.x;
-  const cy = BEAM_END.y;
-  // Stern-förmiger Spritzer mit Strahlen
+  const cx = BEAM_END.x; const cy = BEAM_END.y;
   let spokes = '';
   const n = 8;
   for (let i = 0; i < n; i++) {
@@ -921,8 +1045,12 @@ function updatePreview() {
   previewSplash.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${splashSize * 0.3}" fill="${color}"/>${spokes}`;
 }
 
-colorSlider.addEventListener('input', updatePreview);
-strengthSlider.addEventListener('input', updatePreview);
+// Slider mit aktivem Highlighting
+[colorSlider, strengthSlider].forEach(s => {
+  s.addEventListener('input', () => { fb('tap'); updatePreview(); });
+  s.addEventListener('pointerdown', () => s.closest('.slider-row').classList.add('active'));
+  s.addEventListener('pointerup', () => s.closest('.slider-row').classList.remove('active'));
+});
 
 function resetModal() {
   titleInput.value = '';
@@ -931,12 +1059,12 @@ function resetModal() {
   photoArea.innerHTML = '';
   photoArea.appendChild(photoLabel);
   fileInput.value = '';
-  colorSlider.value = 30;
-  strengthSlider.value = 60;
+  colorSlider.value = 30; strengthSlider.value = 60;
   updatePreview();
 }
 
 document.getElementById('addBtn').addEventListener('click', async () => {
+  fb('tap');
   resetModal();
   modal.classList.add('show');
   modalCoords.textContent = 'Position wird ermittelt...';
@@ -944,13 +1072,10 @@ document.getElementById('addBtn').addEventListener('click', async () => {
     await locate(false);
     modalCoords.textContent = `${myPosition.lat.toFixed(5)}, ${myPosition.lng.toFixed(5)}`;
     setTimeout(() => titleInput.focus(), 100);
-  } catch (e) {
-    modalCoords.textContent = 'Standort nicht verfügbar';
-  }
+  } catch (e) { modalCoords.textContent = 'Standort nicht verfügbar'; }
 });
 
-photoArea.addEventListener('click', () => fileInput.click());
-
+photoArea.addEventListener('click', () => { fb('tap'); fileInput.click(); });
 fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -965,7 +1090,7 @@ fileInput.addEventListener('change', async (e) => {
 });
 
 document.getElementById('cancelBtn').addEventListener('click', () => {
-  modal.classList.remove('show');
+  fb('tap'); modal.classList.remove('show');
 });
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
@@ -985,21 +1110,22 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   };
   try {
     await dbPut(pin);
-    await refreshAll();
+    pins.push(pin);
+    renderPin(pin, true); // mit Drop-Animation
+    document.getElementById('pinCount').textContent = pins.length;
+    fb('success');
+    flashMapGlow();
     modal.classList.remove('show');
-    toast('Pin gespeichert');
+    toast('Pin gespeichert', true);
     openScoreModal(pin);
-  } catch (e) {
-    console.error('Save failed:', e);
-    toast('Fehler beim Speichern');
-  }
+  } catch (e) { toast('Fehler beim Speichern'); }
 });
 
 titleInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') document.getElementById('saveBtn').click();
 });
 
-document.getElementById('locateBtn').addEventListener('click', () => locate(true));
+document.getElementById('locateBtn').addEventListener('click', () => { fb('tap'); locate(true); });
 
 // ===== Modal: Bewertung =====
 const scoreModal = document.getElementById('scoreModal');
@@ -1012,19 +1138,13 @@ let scoringPin = null;
 function buildStarContainers() {
   let html = '';
   for (let i = 0; i < 5; i++) {
-    html += `
-      <div class="star">
-        <svg viewBox="0 0 24 24"><path d="${STAR_PATH}" fill="#3a3a3a"/></svg>
-        <div class="star-fill" style="width: 0;">
-          <svg viewBox="0 0 24 24"><path d="${STAR_PATH}" fill="#ffc940"/></svg>
-        </div>
-      </div>
-    `;
+    html += `<div class="star"><svg viewBox="0 0 24 24"><path d="${STAR_PATH}" fill="#3a3a3a"/></svg><div class="star-fill" style="width: 0;"><svg viewBox="0 0 24 24"><path d="${STAR_PATH}" fill="#ffc940"/></svg></div></div>`;
   }
   scoreStars.innerHTML = html;
 }
 buildStarContainers();
 
+let lastStarLevel = -1;
 function updateScoreDisplay() {
   const score = +scoreSlider.value / 10;
   scoreValue.textContent = score.toFixed(1);
@@ -1034,21 +1154,36 @@ function updateScoreDisplay() {
     const fill = Math.max(0, Math.min(1, starsValue - i));
     el.querySelector('.star-fill').style.width = (fill * 100) + '%';
   });
+  // Pop wenn ein Stern gerade voll wurde
+  const fullStars = Math.floor(starsValue);
+  if (fullStars > lastStarLevel && fullStars > 0) {
+    const el = starEls[fullStars - 1];
+    if (el) {
+      el.classList.remove('pop');
+      void el.offsetWidth;
+      el.classList.add('pop');
+      fb('pop');
+    }
+  }
+  lastStarLevel = fullStars;
 }
-
 scoreSlider.addEventListener('input', updateScoreDisplay);
 
 function openScoreModal(pin) {
   scoringPin = pin;
   scorePinTitle.textContent = pin.title;
   scoreSlider.value = 50;
+  lastStarLevel = -1;
   updateScoreDisplay();
   scoreModal.classList.add('show');
 }
 
 document.getElementById('scoreSkipBtn').addEventListener('click', () => {
+  fb('tap');
   scoreModal.classList.remove('show');
   scoringPin = null;
+  // Nach erstem Pin: Tour fortsetzen falls aktiv
+  if (tourPostPinResume) { tourPostPinResume = false; setTimeout(() => goToStep(3), 300); }
 });
 
 document.getElementById('scoreSaveBtn').addEventListener('click', async () => {
@@ -1060,32 +1195,151 @@ document.getElementById('scoreSaveBtn').addEventListener('click', async () => {
     rerenderPin(scoringPin);
     scoreModal.classList.remove('show');
     scoringPin = null;
-    toast(`Bewertung ${score.toFixed(1)} gespeichert`);
+    fb('success');
+    toast(`Bewertung ${score.toFixed(1)} gespeichert`, true);
+    if (tourPostPinResume) { tourPostPinResume = false; setTimeout(() => goToStep(3), 400); }
   } catch (e) { toast('Fehler beim Speichern'); }
 });
 
 // ===== Toast =====
 let toastTimer;
-function toast(msg) {
+function toast(msg, kick = false) {
   const el = document.getElementById('toast');
   el.textContent = msg;
+  el.classList.remove('show', 'kick');
+  void el.offsetWidth;
   el.classList.add('show');
+  if (kick) el.classList.add('kick');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
+// ===== Onboarding-Tour =====
+const TOUR_STEPS = [
+  {
+    target: '#locateBtn',
+    title: 'Wo bin ich?',
+    text: 'Tipp hier, um die Karte auf deine aktuelle Position zu zentrieren. Ein blauer Punkt zeigt dann, wo du bist.'
+  },
+  {
+    target: '#addBtn',
+    title: 'Pin setzen',
+    text: 'Hier setzt du einen Pin an deiner aktuellen Position. Du kannst Titel, Foto und deine "Signatur" (Farbe + Stärke) festlegen.'
+  },
+  {
+    target: '#addBtn',
+    title: 'Bewerten',
+    text: 'Nach dem Speichern fragt dich die App, wie gut der Ort war. Vergib einen Score von 0 bis 10 — die Sterne füllen sich automatisch.',
+    afterText: true
+  },
+  {
+    target: '#helpBtn',
+    title: 'Hilfe & Tipps',
+    text: 'Wenn du diese Tour nochmal sehen willst, tipp hier. Pins verschwinden automatisch nach 24 Stunden — also lieber direkt setzen!'
+  }
+];
+
+let tourStep = 0;
+let tourActive = false;
+let tourPostPinResume = false;
+
+const tourOverlay = document.getElementById('tourOverlay');
+const tourSpot = document.getElementById('tourSpot');
+const tourCard = document.getElementById('tourCard');
+const tourTitle = document.getElementById('tourTitle');
+const tourText = document.getElementById('tourText');
+const tourStepNum = document.getElementById('tourStepNum');
+const tourBack = document.getElementById('tourBack');
+const tourNext = document.getElementById('tourNext');
+const tourSkip = document.getElementById('tourSkip');
+
+function positionTour() {
+  const step = TOUR_STEPS[tourStep];
+  const target = document.querySelector(step.target);
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  // Spotlight auf Target
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const r = Math.max(rect.width, rect.height) / 2 + 16;
+  tourSpot.style.width = (r * 2) + 'px';
+  tourSpot.style.height = (r * 2) + 'px';
+  tourSpot.style.left = (cx - r) + 'px';
+  tourSpot.style.top = (cy - r) + 'px';
+  // Card platzieren: meistens über dem Target, falls oben kein Platz dann darunter
+  const cardW = Math.min(320, window.innerWidth - 40);
+  const cardEstHeight = 180;
+  let cardLeft = Math.max(20, Math.min(window.innerWidth - cardW - 20, cx - cardW / 2));
+  let cardTop;
+  // Wenn das Target im unteren Drittel ist → Card oben, sonst unten
+  if (cy > window.innerHeight * 0.5) {
+    cardTop = Math.max(20, rect.top - cardEstHeight - 30);
+  } else {
+    cardTop = Math.min(window.innerHeight - cardEstHeight - 20, rect.bottom + 30);
+  }
+  tourCard.style.left = cardLeft + 'px';
+  tourCard.style.top = cardTop + 'px';
+}
+
+function showStep() {
+  const step = TOUR_STEPS[tourStep];
+  tourTitle.textContent = step.title;
+  tourText.textContent = step.text;
+  tourStepNum.textContent = `Schritt ${tourStep + 1} von ${TOUR_STEPS.length}`;
+  tourBack.style.visibility = tourStep === 0 ? 'hidden' : 'visible';
+  tourNext.textContent = tourStep === TOUR_STEPS.length - 1 ? 'Verstanden' : 'Weiter';
+  positionTour();
+}
+
+function startTour() {
+  tourStep = 0;
+  tourActive = true;
+  tourOverlay.classList.add('show');
+  showStep();
+}
+
+function endTour() {
+  tourActive = false;
+  tourOverlay.classList.remove('show');
+  localStorage.setItem('pissTheWorld_tourSeen', '1');
+}
+
+function goToStep(n) {
+  tourStep = Math.max(0, Math.min(TOUR_STEPS.length - 1, n));
+  if (!tourActive) {
+    tourActive = true;
+    tourOverlay.classList.add('show');
+  }
+  showStep();
+}
+
+tourNext.addEventListener('click', () => {
+  fb('tap');
+  if (tourStep === TOUR_STEPS.length - 1) {
+    endTour();
+    return;
+  }
+  tourStep++;
+  showStep();
+});
+tourBack.addEventListener('click', () => { fb('tap'); if (tourStep > 0) { tourStep--; showStep(); } });
+tourSkip.addEventListener('click', () => { fb('tap'); endTour(); });
+
+document.getElementById('helpBtn').addEventListener('click', () => { fb('tap'); startTour(); });
+
+window.addEventListener('resize', () => { if (tourActive) positionTour(); });
+
 // ===== Init =====
 (async function init() {
-  try {
-    await openDB();
-    await refreshAll();
-  } catch (e) {
-    console.error('DB init failed:', e);
-    toast('Speicher nicht verfügbar');
-  }
+  try { await openDB(); await refreshAll(); }
+  catch (e) { toast('Speicher nicht verfügbar'); }
   locate(false).catch(() => {});
   setInterval(refreshAll, 60 * 1000);
   updatePreview();
+  // Tour beim ersten Start zeigen
+  if (!localStorage.getItem('pissTheWorld_tourSeen')) {
+    setTimeout(startTour, 800);
+  }
 })();
 </script>
 </body>
