@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>PinMap — 24h Karte</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0f1416;
+    --ink: #f5f0e6;
+    --ink-dim: #a39d8f;
+    --accent: #ff5b3a;
+    --accent-soft: #ffb89a;
+    --card: #1a2024;
+    --border: #2a3036;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Fraunces', Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #map { position: absolute; inset: 0; z-index: 1; }
+
+  .header {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: calc(var(--safe-top) + 14px) 18px 14px;
+    z-index: 1000;
+    background: linear-gradient(to bottom, rgba(15,20,22,0.9), rgba(15,20,22,0));
+    pointer-events: none;
+  }
+  .brand { font-weight: 800; font-size: 22px; letter-spacing: -0.02em; font-style: italic; }
+  .brand .dot { color: var(--accent); font-style: normal; }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .status {
+    position: absolute;
+    top: calc(var(--safe-top) + 16px);
+    right: 16px;
+    z-index: 1001;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+  .status .count { color: var(--accent-soft); font-weight: 500; }
+
+  .controls {
+    position: absolute;
+    bottom: calc(var(--safe-bottom) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 14px 20px;
+    border-radius: 999px;
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #1a0d08; }
+  .btn svg { width: 18px; height: 18px; }
+
+  .modal-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 24px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 { font-size: 24px; font-weight: 800; font-style: italic; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .modal .hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .modal input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    outline: none;
+  }
+  .modal input[type="text"]:focus { border-color: var(--accent); }
+
+  .photo-area {
+    margin-top: 14px;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 22px 14px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--bg);
+    transition: border-color 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-area:hover { border-color: var(--accent); }
+  .photo-area.has-photo { padding: 0; border-style: solid; border-color: var(--border); }
+  .photo-area .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .photo-area .label svg { width: 22px; height: 22px; display: block; margin: 0 auto 6px; opacity: 0.6; }
+  .photo-area img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+  .photo-area .replace-tag {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(0,0,0,0.65);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-actions .btn { flex: 1; justify-content: center; padding: 12px; }
+
+  .pin-marker {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border: 3px solid var(--ink);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .pin-marker::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: var(--ink);
+    border-radius: 50%;
+  }
+  .pin-marker.has-photo::after { background: var(--accent-soft); }
+
+  .me-marker {
+    width: 18px; height: 18px;
+    background: #4a9eff;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 8px rgba(74, 158, 255, 0.25);
+    animation: pulse 2s infinite ease-out;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74, 158, 255, 0.4); }
+    100% { box-shadow: 0 0 0 16px rgba(74, 158, 255, 0); }
+  }
+
+  .leaflet-popup-content-wrapper {
+    background: var(--card);
+    color: var(--ink);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    padding: 0;
+  }
+  .leaflet-popup-content-wrapper .leaflet-popup-content { margin: 0; }
+  .leaflet-popup-tip { background: var(--card); border: 1px solid var(--border); }
+  .leaflet-popup-content {
+    font-family: 'Fraunces', serif;
+    width: 240px !important;
+  }
+  .popup-photo {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    cursor: zoom-in;
+  }
+  .popup-body { padding: 12px 14px 14px; }
+  .popup-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .popup-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+  }
+  .popup-delete {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink-dim);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  .popup-delete:hover { color: var(--accent); border-color: var(--accent); }
+
+  .lightbox {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    cursor: zoom-out;
+  }
+  .lightbox.show { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  .lightbox .close {
+    position: absolute;
+    top: calc(var(--safe-top) + 16px);
+    right: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .toast {
+    position: absolute;
+    top: calc(var(--safe-top) + 70px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    z-index: 1500;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="header">
+  <div class="brand">PinMap<span class="dot">.</span></div>
+  <div class="subtitle">deine Welt · 24h sichtbar</div>
+</div>
+
+<div class="status">
+  <span class="count" id="pinCount">0</span> aktive Pins
+</div>
+
+<div class="controls">
+  <button class="btn" id="locateBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    Standort
+  </button>
+  <button class="btn btn-primary" id="addBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    Pin setzen
+  </button>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h2>Neuer Pin</h2>
+    <div class="hint" id="modalCoords">Position wird ermittelt...</div>
+    <input type="text" id="titleInput" placeholder="Was ist hier? (z.B. Café Mocca)" maxlength="60" autocomplete="off">
+
+    <div class="photo-area" id="photoArea">
+      <div class="label" id="photoLabel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/></svg>
+        Foto hinzufügen (optional)
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+    <div class="modal-actions">
+      <button class="btn" id="cancelBtn">Abbrechen</button>
+      <button class="btn btn-primary" id="saveBtn">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="close" id="lightboxClose">×</button>
+  <img id="lightboxImg" alt="">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// === Speicher ===
+const STORAGE_KEY = 'pinmap_pins_v2';
+const TTL_MS = 24 * 60 * 60 * 1000;
+
+function loadPins() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const all = JSON.parse(raw);
+    const now = Date.now();
+    return all.filter(p => (now - p.createdAt) < TTL_MS);
+  } catch (e) { return []; }
+}
+function savePins(pins) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
+    return true;
+  } catch (e) {
+    toast('Speicher voll. Lösche alte Pins.');
+    return false;
+  }
+}
+
+// === Foto verkleinern ===
+function compressImage(file, maxSize = 1280, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxSize) { height = height * (maxSize / width); width = maxSize; }
+        } else {
+          if (height > maxSize) { width = width * (maxSize / height); height = maxSize; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(width);
+        canvas.height = Math.round(height);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Bild konnte nicht geladen werden'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Datei konnte nicht gelesen werden'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// === Karte ===
+const map = L.map('map', { zoomControl: false }).setView([20, 10], 2);
+L.control.zoom({ position: 'topright' }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  maxZoom: 19
+}).addTo(map);
+
+const pinMarkers = new Map();
+let pins = loadPins();
+let myMarker = null;
+let myPosition = null;
+let pendingPhoto = null;
+
+function makePinIcon(hasPhoto) {
+  return L.divIcon({
+    className: '',
+    html: `<div class="pin-marker${hasPhoto ? ' has-photo' : ''}"></div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 26]
+  });
+}
+function makeMeIcon() {
+  return L.divIcon({
+    className: '',
+    html: '<div class="me-marker"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+  });
+}
+
+function formatTime(ts) {
+  return new Date(ts).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+function timeLeft(createdAt) {
+  const ms = TTL_MS - (Date.now() - createdAt);
+  if (ms <= 0) return 'abgelaufen';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return `noch ${h}h ${m}m`;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderPin(pin) {
+  const m = L.marker([pin.lat, pin.lng], { icon: makePinIcon(!!pin.photo) }).addTo(map);
+  const photoHtml = pin.photo
+    ? `<img src="${pin.photo}" class="popup-photo" onclick="openLightbox('${pin.id}')" alt="">`
+    : '';
+  const html = `
+    ${photoHtml}
+    <div class="popup-body">
+      <div class="popup-title">${escapeHtml(pin.title)}</div>
+      <div class="popup-meta">${formatTime(pin.createdAt)} · ${timeLeft(pin.createdAt)}</div>
+      <button class="popup-delete" onclick="deletePin('${pin.id}')">Löschen</button>
+    </div>
+  `;
+  m.bindPopup(html, { maxWidth: 240, minWidth: 240 });
+  pinMarkers.set(pin.id, m);
+}
+
+function refreshAll() {
+  const now = Date.now();
+  const fresh = pins.filter(p => (now - p.createdAt) < TTL_MS);
+  for (const [id, marker] of pinMarkers) {
+    if (!fresh.find(p => p.id === id)) {
+      map.removeLayer(marker);
+      pinMarkers.delete(id);
+    }
+  }
+  for (const p of fresh) {
+    if (!pinMarkers.has(p.id)) renderPin(p);
+  }
+  pins = fresh;
+  savePins(pins);
+  document.getElementById('pinCount').textContent = pins.length;
+}
+
+window.deletePin = function(id) {
+  pins = pins.filter(p => p.id !== id);
+  savePins(pins);
+  refreshAll();
+  toast('Pin gelöscht');
+};
+
+window.openLightbox = function(id) {
+  const pin = pins.find(p => p.id === id);
+  if (!pin || !pin.photo) return;
+  document.getElementById('lightboxImg').src = pin.photo;
+  document.getElementById('lightbox').classList.add('show');
+};
+document.getElementById('lightbox').addEventListener('click', () => {
+  document.getElementById('lightbox').classList.remove('show');
+});
+
+// === GPS ===
+function locate(showToast = true) {
+  if (!navigator.geolocation) {
+    toast('GPS nicht verfügbar');
+    return Promise.reject();
+  }
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        myPosition = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (myMarker) map.removeLayer(myMarker);
+        myMarker = L.marker([myPosition.lat, myPosition.lng], { icon: makeMeIcon(), interactive: false }).addTo(map);
+        map.setView([myPosition.lat, myPosition.lng], 15, { animate: true });
+        if (showToast) toast('Standort gefunden');
+        resolve(myPosition);
+      },
+      err => { toast('Standort verweigert'); reject(err); },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+}
+
+// === Modal & Foto-Eingabe ===
+const modal = document.getElementById('modal');
+const modalCoords = document.getElementById('modalCoords');
+const titleInput = document.getElementById('titleInput');
+const photoArea = document.getElementById('photoArea');
+const photoLabel = document.getElementById('photoLabel');
+const fileInput = document.getElementById('fileInput');
+
+function resetModal() {
+  titleInput.value = '';
+  pendingPhoto = null;
+  photoArea.classList.remove('has-photo');
+  photoArea.innerHTML = '';
+  photoArea.appendChild(photoLabel);
+  fileInput.value = '';
+}
+
+document.getElementById('addBtn').addEventListener('click', async () => {
+  resetModal();
+  modal.classList.add('show');
+  modalCoords.textContent = 'Position wird ermittelt...';
+  try {
+    await locate(false);
+    modalCoords.textContent = `${myPosition.lat.toFixed(5)}, ${myPosition.lng.toFixed(5)}`;
+    setTimeout(() => titleInput.focus(), 100);
+  } catch (e) {
+    modalCoords.textContent = 'Standort nicht verfügbar';
+  }
+});
+
+photoArea.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  toast('Foto wird verkleinert...');
+  try {
+    const dataUrl = await compressImage(file);
+    pendingPhoto = dataUrl;
+    photoArea.classList.add('has-photo');
+    photoArea.innerHTML = `<img src="${dataUrl}" alt=""><div class="replace-tag">Foto ändern</div>`;
+    toast('Foto bereit');
+  } catch (err) {
+    toast('Foto konnte nicht geladen werden');
+  }
+});
+
+document.getElementById('cancelBtn').addEventListener('click', () => {
+  modal.classList.remove('show');
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const title = titleInput.value.trim();
+  if (!title) { toast('Bitte einen Titel eingeben'); return; }
+  if (!myPosition) { toast('Kein Standort verfügbar'); return; }
+  const pin = {
+    id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    title,
+    lat: myPosition.lat,
+    lng: myPosition.lng,
+    createdAt: Date.now(),
+    photo: pendingPhoto || null
+  };
+  pins.push(pin);
+  if (!savePins(pins)) {
+    pins.pop();
+    return;
+  }
+  refreshAll();
+  modal.classList.remove('show');
+  toast(pendingPhoto ? 'Pin mit Foto gespeichert' : 'Pin gespeichert · 24h sichtbar');
+});
+
+titleInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('saveBtn').click();
+});
+
+document.getElementById('locateBtn').addEventListener('click', () => locate(true));
+
+// === Toast ===
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// === Init ===
+refreshAll();
+locate(false).catch(() => {});
+setInterval(refreshAll, 60 * 1000);
+</script>
+</body>
+</html>
